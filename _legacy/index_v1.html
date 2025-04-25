@@ -107,6 +107,34 @@
             border-radius: 4px;
             cursor: pointer;
         }
+
+        /* size presets */
+        .size-presets {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .size-presets select {
+            flex: 1;
+            min-width: 120px;
+        }
+
+        .size-presets label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            color: #555;
+        }
+
+        @media (max-width: 600px) {
+            .size-presets {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+        }
+
     </style>
 </head>
 <body>
@@ -116,7 +144,72 @@
 </header>
 
 <div class="generator">
+    <div class="size-presets">
+        <div class="form-group">
+            <label>Commonly used</label>
+            <select class="preset-select" data-type="square">
+                <option value=""></option>
+                <option value="50x50">50 × 50</option>
+                <option value="60x60">60 × 60</option>
+                <option value="80x80">80 × 80</option>
+                <option value="100x100">100 × 100</option>
+                <option value="120x120">120 × 120</option>
+                <option value="150x150">150 × 150</option>
+                <option value="180x180">180 × 180</option>
+                <option value="200x200">200 × 200</option>
+                <option value="240x240">240 × 240</option>
+                <option value="300x300">300 × 300</option>
+                <option value="400x400">400 × 400</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Common banners</label>
+            <select class="preset-select" data-type="banner">
+                <option value=""></option>
+                <option value="728x90">728 × 90</option>
+                <option value="468x60">468 × 60</option>
+                <option value="350x80">350 × 80</option>
+                <option value="350x160">350 × 160</option>
+                <option value="350x240">350 × 240</option>
+                <option value="336x280">336 × 280</option>
+                <option value="320x50">320 × 50</option>
+                <option value="300x250">300 × 250</option>
+                <option value="250x250">250 × 250</option>
+                <option value="234x60">234 × 60</option>
+                <option value="224x33">224 × 33</option>
+                <option value="160x600">160 × 600</option>
+                <option value="125x125">125 × 125</option>
+                <option value="120x60">120 × 60</option>
+                <option value="120x90">120 × 90</option>
+                <option value="120x600">120 × 600</option>
+                <option value="100x60">100 × 60</option>
+                <option value="100x100">100 × 100</option>
+                <option value="88x31">88 × 31</option>
+                <option value="80x60">80 × 60</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Web creation</label>
+            <select class="preset-select" data-type="web">
+                <option value=""></option>
+                <option value="16x16">16 × 16 (favicon)</option>
+                <option value="57x57">57 × 57 (Apple)</option>
+                <option value="72x72">72 × 72 (Apple)</option>
+                <option value="114x114">114 × 114 (Apple)</option>
+                <option value="320x240">320 × 240 (QVGA)</option>
+                <option value="640x480">640 × 480 (VGA)</option>
+                <option value="800x600">800 × 600 (SVGA)</option>
+                <option value="850x315">850 × 315 (Facebook)</option>
+                <option value="180x180">180 × 180 (Facebook)</option>
+            </select>
+        </div>
+    </div>
+
     <!-- Строка с шириной и высотой -->
+
+
     <div class="form-row">
         <div class="form-group">
             <label for="width">Ширина (px)</label>
@@ -127,6 +220,10 @@
             <input type="number" id="height" value="150" min="1" max="2000">
         </div>
     </div>
+
+    <hr>
+
+
 
     <div class="form-group">
         <label for="bgColor">Цвет фона (HEX)</label>
@@ -258,6 +355,28 @@
 
         bindColorPicker('bgColor', 'bgColorPicker');
         bindColorPicker('textColor', 'textColorPicker');
+
+        document.querySelectorAll('.preset-select').forEach(select => {
+            select.addEventListener('change', function() {
+                if (this.value) {
+                    const [width, height] = this.value.split('x');
+                    document.getElementById('width').value = width;
+                    document.getElementById('height').value = height;
+
+                    // Обновляем плейсхолдер текста
+                    const textInput = document.getElementById('text');
+                    textInput.placeholder = `По умолчанию ${width}×${height}`;
+
+                    // Сбрасываем другие селекты
+                    document.querySelectorAll('.preset-select').forEach(s => {
+                        if (s !== this) s.value = '';
+                    });
+
+                    updatePreview();
+                }
+            });
+        });
+
     });
 </script>
 </body>

@@ -1,12 +1,14 @@
 <?php
 
+(new DateTime)->setTimezone(new DateTimeZone('Europe/Moscow'));
+
 require_once __DIR__ . '/functions.php';
 
 // Конфигурация кэширования
 $cacheConfig = [
     'enabled' => false,                  // Включить кэширование
     'directory' => __DIR__ . '/../cache',  // Папка для кэша
-    'expires' => 86400,                 // Время жизни кэша в секундах (1 день)
+    'expires' => 1,                 // Время жизни кэша в секундах (1 день)
     'gc_probability' => 10,             // Вероятность запуска сборщика мусора (1/10)
 ];
 
@@ -21,7 +23,9 @@ $defaults = [
 
     'min_font_size' => 8,
     'max_font_size' => 100,
-    'font_ratio' => 0.15 // 15% от высоты изображения
+    'font_ratio' => 0.15, // 15% от высоты изображения
+    // font
+    'font'      =>  __DIR__ . '/../fonts/segoe-ui.ttf'
 ];
 
 // Получаем путь и параметры запроса
@@ -150,7 +154,7 @@ $textColorRes = imagecolorallocate($image, $textRgb[0], $textRgb[1], $textRgb[2]
 imagefilledrectangle($image, 0, 0, $width, $height, $bgColorRes);
 
 // Добавляем текст
-$font = __DIR__ . '/arial.ttf'; // Путь к файлу шрифта
+$font = $defaults['font']; // Путь к файлу шрифта
 
 if (file_exists($font)) {
     // Получаем реальные границы текста

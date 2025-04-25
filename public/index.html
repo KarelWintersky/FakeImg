@@ -1,350 +1,422 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FakeImg — генератор плейсхолдеров</title>
-    <style>
-        :root {
-            --primary: #3d4070;
-            --secondary: #f9f06b;
-            --text: #333;
-        }
-        body {
-            font-family: 'Segoe UI', sans-serif;
-            line-height: 1.6;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 2rem;
-            color: var(--text);
-        }
-        header {
-            text-align: center;
-            margin-bottom: 2rem;
-        }
-        h1 {
-            color: var(--primary);
-            font-size: 2.5rem;
-            margin-bottom: 0.5rem;
-        }
-        .tagline {
-            font-size: 1.2rem;
-            opacity: 0.8;
-        }
-        .generator {
-            background: #f5f5f5;
-            padding: 1.5rem;
-            border-radius: 8px;
-        }
-        .form-group {
-            margin-bottom: 1rem;
-        }
-        label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: bold;
-        }
-        input, select {
-            width: 100%;
-            padding: 0.5rem;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
-        .preview {
-            margin: 2rem 0;
-            text-align: center;
-        }
-        .preview img {
-            max-width: 100%;
-            border: 1px dashed #ccc;
-        }
-        .result {
-            background: #eee;
-            padding: 1rem;
-            border-radius: 4px;
-            word-break: break-all;
-        }
-        button {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 0.75rem 1.5rem;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 1rem;
-            margin-top: 1rem;
-        }
-        button:hover {
-            opacity: 0.9;
-        }
-        .examples {
-            margin-top: 3rem;
-        }
-        .example-link {
-            color: var(--primary);
-            text-decoration: none;
-        }
-        .example-link:hover {
-            text-decoration: underline;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FakeImg — генератор плейсхолдеров</title>
+  <style>
+    :root {
+      --primary: #3d4070;
+      --secondary: #f9f06b;
+      --text: #333;
+    }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      line-height: 1.6;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 2rem;
+      color: var(--text);
+    }
+    header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    h1 {
+      color: var(--primary);
+      font-size: 2.5rem;
+      margin-bottom: 0.5rem;
+    }
+    .tagline {
+      font-size: 1.2rem;
+      opacity: 0.8;
+    }
+    .generator {
+      background: #f5f5f5;
+      padding: 1.5rem;
+      border-radius: 8px;
+    }
+    .form-group {
+      margin-bottom: 1rem;
+    }
+    .form-row {
+      display: flex;
+      gap: 1rem;
+    }
+    .form-row .form-group {
+      flex: 1;
+      margin-bottom: 0;
+    }
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: bold;
+    }
+    input, select {
+      width: 100%;
+      padding: 0.5rem;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+    input::placeholder {
+      color: #999;
+      font-style: italic;
+    }
 
-        .color-wrapper {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 8px;
-        }
+    /* Стили для блока пресетов */
+    .size-presets {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .size-presets .form-group {
+      flex: 1;
+    }
+    .size-presets label {
+      font-size: 0.9em;
+      color: #555;
+    }
 
-        .color-wrapper input[type="color"] {
-            width: 50px;
-            height: 40px;
-            padding: 2px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            cursor: pointer;
-        }
+    /* Стили для предпросмотра */
+    .preview-container {
+      display: flex;
+      gap: 2rem;
+      margin: 2rem 0;
+      align-items: center;
+    }
+    .preview-image {
+      flex: 1;
+      max-width: 60%;
+      border: 1px dashed #ccc;
+      background: repeating-conic-gradient(#eee 0% 25%, #fff 0% 50%) 50%/20px 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+    }
+    .preview-image img {
+      max-width: 100%;
+      max-height: 100%;
+      display: block;
+    }
+    .preview-details {
+      flex: 1;
+    }
+    .preview-details h3 {
+      margin-top: 0;
+      color: var(--primary);
+    }
+    .preview-meta {
+      font-size: 0.9em;
+      color: #666;
+    }
 
-        .color-presets {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
+    .result-url {
+      background: #eee;
+      padding: 1rem;
+      border-radius: 4px;
+      word-break: break-all;
+      font-family: monospace;
+      margin-top: 1rem;
+    }
+    .domain-part {
+      color: #666;
+    }
+    button {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 1rem;
+      margin-top: 1rem;
+    }
+    button:hover {
+      opacity: 0.9;
+    }
+    .color-wrapper {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+    .color-wrapper input[type="color"] {
+      width: 50px;
+      height: 40px;
+      padding: 2px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      cursor: pointer;
+    }
 
-        .preset-btn {
-            background: #f0f0f0;
-            color: #333;
-            border: 1px solid #ddd;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 0.8rem;
-            margin-top: 0;
-            cursor: pointer;
-        }
-
-        .preset-btn:hover {
-            background: #e0e0e0;
-        }
-        input::placeholder {
-            color: #999;
-            font-style: italic;
-        }
-        .result-url {
-            background: #f0f0f0;
-            padding: 12px;
-            border-radius: 4px;
-            word-break: break-all;
-            font-family: monospace;
-            margin-top: 10px;
-            border: 1px solid #ddd;
-        }
-
-        .domain-part {
-            color: #666;
-        }
-    </style>
+    @media (max-width: 600px) {
+      .size-presets,
+      .preview-container {
+        flex-direction: column;
+      }
+      .preview-image {
+        max-width: 100%;
+        width: 100%;
+      }
+    }
+  </style>
 </head>
 <body>
 <header>
-    <h1>FakeImg</h1>
-    <p class="tagline">Генератор плейсхолдеров</p>
+  <h1>FakeImg</h1>
+  <p class="tagline">Генератор плейсхолдеров</p>
 </header>
 
 <div class="generator">
+  <!-- Блок с пресетами размеров -->
+  <div class="size-presets">
     <div class="form-group">
-        <label for="width">Ширина (px)</label>
-        <input type="number" id="width" value="300" min="1" max="2000">
-    </div>
-
-    <div class="form-group">
-        <label for="height">Высота (px)</label>
-        <input type="number" id="height" value="150" min="1" max="2000">
-    </div>
-
-    <div class="form-group">
-        <label for="bgColor">Цвет фона</label>
-        <div class="color-wrapper">
-            <input type="text" id="bgColor" value="3d4070" placeholder="HEX без #">
-            <input type="color" id="bgColorPicker" value="#3d4070">
-        </div>
-        <div class="color-presets">
-            <button class="preset-btn" data-color="3d4070" data-target="bgColor">Основной</button>
-            <button class="preset-btn" data-color="f9f06b" data-target="bgColor">Жёлтый</button>
-            <button class="preset-btn" data-color="dddddd" data-target="bgColor">Серый</button>
-        </div>
+      <label>Commonly used</label>
+      <select class="preset-select" data-type="square">
+        <option value="">Select size...</option>
+        <option value="50x50">50 × 50</option>
+        <option value="60x60">60 × 60</option>
+        <option value="80x80">80 × 80</option>
+        <option value="100x100">100 × 100</option>
+        <option value="120x120">120 × 120</option>
+        <option value="150x150">150 × 150</option>
+        <option value="180x180">180 × 180</option>
+        <option value="200x200">200 × 200</option>
+        <option value="240x240">240 × 240</option>
+        <option value="300x300">300 × 300</option>
+        <option value="400x400">400 × 400</option>
+      </select>
     </div>
 
     <div class="form-group">
-        <label for="textColor">Цвет текста</label>
-        <div class="color-wrapper">
-            <input type="text" id="textColor" value="ffffff" placeholder="HEX без #">
-            <input type="color" id="textColorPicker" value="#ffffff">
-        </div>
-        <div class="color-presets">
-            <button class="preset-btn" data-color="ffffff" data-target="textColor">Белый</button>
-            <button class="preset-btn" data-color="333333" data-target="textColor">Чёрный</button>
-            <button class="preset-btn" data-color="3584e4" data-target="textColor">Синий</button>
-        </div>
+      <label>Common banners</label>
+      <select class="preset-select" data-type="banner">
+        <option value="">Select size...</option>
+        <option value="728x90">728 × 90</option>
+        <option value="468x60">468 × 60</option>
+        <option value="350x80">350 × 80</option>
+        <option value="350x160">350 × 160</option>
+        <option value="350x240">350 × 240</option>
+        <option value="336x280">336 × 280</option>
+        <option value="320x50">320 × 50</option>
+        <option value="300x250">300 × 250</option>
+        <option value="250x250">250 × 250</option>
+        <option value="234x60">234 × 60</option>
+        <option value="224x33">224 × 33</option>
+        <option value="160x600">160 × 600</option>
+        <option value="125x125">125 × 125</option>
+        <option value="120x60">120 × 60</option>
+        <option value="120x90">120 × 90</option>
+        <option value="120x600">120 × 600</option>
+        <option value="100x60">100 × 60</option>
+        <option value="100x100">100 × 100</option>
+        <option value="88x31">88 × 31</option>
+        <option value="80x60">80 × 60</option>
+      </select>
     </div>
 
     <div class="form-group">
-        <label for="fontSize">Размер шрифта (pt)</label>
-        <input type="number" id="fontSize" value="30" min="1" max="100">
+      <label>Web creation</label>
+      <select class="preset-select" data-type="web">
+        <option value="">Select size...</option>
+        <option value="16x16">16 × 16 (favicon)</option>
+        <option value="57x57">57 × 57 (Apple)</option>
+        <option value="72x72">72 × 72 (Apple)</option>
+        <option value="114x114">114 × 114 (Apple)</option>
+        <option value="320x240">320 × 240 (QVGA)</option>
+        <option value="640x480">640 × 480 (VGA)</option>
+        <option value="800x600">800 × 600 (SVGA)</option>
+        <option value="850x315">850 × 315 (Facebook)</option>
+        <option value="180x180">180 × 180 (Facebook)</option>
+      </select>
     </div>
+  </div>
 
+  <!-- Основные поля формы -->
+  <div class="form-row">
     <div class="form-group">
-        <label for="text">Текст</label>
-        <input type="text" id="text" placeholder="По умолчанию 300×150">
+      <label for="width">Ширина (px)</label>
+      <input type="number" id="width" value="300" min="1" max="2000">
     </div>
-
     <div class="form-group">
-        <label for="format">Формат</label>
-        <select id="format">
-            <option value="png">PNG</option>
-            <option value="jpg">JPG</option>
-            <option value="webp">WebP</option>
-        </select>
+      <label for="height">Высота (px)</label>
+      <input type="number" id="height" value="150" min="1" max="2000">
     </div>
+  </div>
 
-    <button id="generate">Сгенерировать URL</button>
-
-    <div class="form-group">
-        <br>
-        <label>URL:</label>
-        <div class="result" id="resultUrl">
-            <span class="domain-part" id="domainDisplay"></span><span id="pathDisplay"></span>
-        </div>
+  <div class="form-group">
+    <label for="bgColor">Цвет фона (HEX)</label>
+    <div class="color-wrapper">
+      <input type="text" id="bgColor" value="3d4070" placeholder="Без #">
+      <input type="color" id="bgColorPicker" value="#3d4070">
     </div>
+  </div>
 
-    <div class="preview">
-        <h3>Предпросмотр</h3>
-        <img id="previewImg" src="/30/3d4070/ffffff/300x150.png" alt="Превью">
+  <div class="form-group">
+    <label for="textColor">Цвет текста (HEX)</label>
+    <div class="color-wrapper">
+      <input type="text" id="textColor" value="ffffff" placeholder="Без #">
+      <input type="color" id="textColorPicker" value="#ffffff">
     </div>
+  </div>
 
+  <div class="form-group">
+    <label for="fontSize">Размер шрифта (pt)</label>
+    <input type="number" id="fontSize" value="30" min="1" max="100">
+  </div>
 
-</div>
+  <div class="form-group">
+    <label for="text">Текст</label>
+    <input type="text" id="text" placeholder="По умолчанию 300×150">
+  </div>
 
-<div class="examples">
-    <h3>Примеры использования:</h3>
-    <ul>
-        <li><a href="/300x150.png" class="example-link">/300x150.png</a> — минимальный вариант</li>
-        <li><a href="/20/f0f0f0/333/400x200.jpg?text=Пример" class="example-link">/20/f0f0f0/333/400x200.jpg?text=Пример</a> — с настройками</li>
-        <li><a href="/0x0.webp" class="example-link">/0x0.webp</a> — размер по умолчанию (150x150) в WebP</li>
-    </ul>
+  <div class="form-group">
+    <label for="format">Формат</label>
+    <select id="format">
+      <option value="jpg">JPG</option>
+      <option value="png">PNG</option>
+      <option value="webp">WebP</option>
+    </select>
+  </div>
+
+  <!-- Блок предпросмотра -->
+  <div class="preview-container">
+    <div class="preview-image">
+      <img id="previewImg" src="/30/3d4070/ffffff/300x150.png" alt="Превью">
+    </div>
+    <div class="preview-details">
+      <h3>Предпросмотр</h3>
+      <div class="preview-meta">
+        <div>Размер: <span id="previewSize">300 × 150px</span></div>
+        <div>Формат: <span id="previewFormat">PNG</span></div>
+        <div>Цвет фона: <span id="previewBgColor">#3d4070</span></div>
+        <div>Цвет текста: <span id="previewTextColor">#ffffff</span></div>
+      </div>
+    </div>
+  </div>
+
+  <button id="generate">Сгенерировать URL</button>
+
+  <div class="form-group">
+    <label>Ваш URL</label>
+    <div class="result-url">
+      <span class="domain-part" id="domainDisplay"></span><span id="pathDisplay"></span>
+    </div>
+  </div>
 </div>
 
 <script>
-    // Конвертация между форматами HEX
-    function hexToInput(hex) {
-        return hex.replace('#', '').substring(0, 6);
+  document.addEventListener('DOMContentLoaded', function() {
+    // Получаем текущий домен
+    const currentDomain = window.location.origin;
+    document.getElementById('domainDisplay').textContent = currentDomain;
+
+    // Элементы формы
+    const widthInput = document.getElementById('width');
+    const heightInput = document.getElementById('height');
+    const textInput = document.getElementById('text');
+    const bgColorInput = document.getElementById('bgColor');
+    const textColorInput = document.getElementById('textColor');
+    const formatInput = document.getElementById('format');
+
+    // Обновление плейсхолдера
+    function updatePlaceholder() {
+      const width = widthInput.value || '300';
+      const height = heightInput.value || '150';
+      textInput.placeholder = `По умолчанию ${width}×${height}`;
+
+      if (!textInput.value) {
+        updatePreview();
+      }
     }
 
-    function inputToHex(val) {
-        return val.startsWith('#') ? val : `#${val}`;
-    }
-
-    // Связываем colorpicker с текстовым полем
-    function bindColorPicker(textId, pickerId) {
-        const textInput = document.getElementById(textId);
-        const picker = document.getElementById(pickerId);
-
-        textInput.addEventListener('input', function() {
-            if (this.value.length === 3 || this.value.length === 6) {
-                picker.value = inputToHex(this.value);
-            }
-        });
-
-        textInput.addEventListener('blur', function() {
-            if (!isValidHex(`#${this.value}`)) {
-                this.value = '3d4070'; // Возвращаем дефолтный
-                picker.value = '#3d4070';
-            }
-        });
-
-        picker.addEventListener('input', function() {
-            textInput.value = hexToInput(this.value);
-            updatePreview();
-        });
-    }
-
-    function isValidHex(color) {
-        return /^#?([0-9A-F]{3}){1,2}$/i.test(color);
-    }
-
-
+    // Генерация URL и превью
     function updatePreview() {
-        const width = document.getElementById('width').value || '150';
-        const height = document.getElementById('height').value || '150';
-        const bgColor = document.getElementById('bgColor').value || '3d4070';
-        const textColor = document.getElementById('textColor').value || 'ffffff';
-        const fontSize = document.getElementById('fontSize').value || '30';
-        const text = document.getElementById('text').value;
-        const format = document.getElementById('format').value;
+      const width = widthInput.value || '150';
+      const height = heightInput.value || '150';
+      const bgColor = bgColorInput.value || '3d4070';
+      const textColor = textColorInput.value || 'ffffff';
+      const fontSize = document.getElementById('fontSize').value || '30';
+      const text = textInput.value;
+      const format = formatInput.value;
 
-        let path = `/${fontSize}/${bgColor}/${textColor}/${width}x${height}.${format}`;
-        if (text) path += `?text=${encodeURIComponent(text)}`;
+      let path = `/${fontSize}/${bgColor}/${textColor}/${width}x${height}.${format}`;
+      if (text) path += `?text=${encodeURIComponent(text)}`;
 
-        document.getElementById('pathDisplay').textContent = path;
-        document.getElementById('previewImg').src = path;
+      document.getElementById('pathDisplay').textContent = path;
+      document.getElementById('previewImg').src = path;
+
+      // Обновляем метаданные предпросмотра
+      document.getElementById('previewSize').textContent = `${width} × ${height}px`;
+      document.getElementById('previewFormat').textContent = format.toUpperCase();
+      document.getElementById('previewBgColor').textContent = `#${bgColor}`;
+      document.getElementById('previewTextColor').textContent = `#${textColor}`;
     }
 
-    document.addEventListener('DOMContentLoaded', function() {
-        document.getElementById('domainDisplay').textContent = window.location.origin;
-
-        // Инициализация
-        updatePreview();
-
-        const inputs = ['width', 'height', 'bgColor', 'textColor', 'fontSize', 'text', 'format'];
-        const widthInput = document.getElementById('width');
-        const heightInput = document.getElementById('height');
-        const textInput = document.getElementById('text');
-
-        function updatePlaceholder() {
-            const width = widthInput.value || '300';
-            const height = heightInput.value || '150';
-            textInput.placeholder = `По умолчанию ${width}×${height}`;
-
-            // Если поле текста пустое, обновляем превью с размерами
-            if (!textInput.value) {
-                updatePreview();
-            }
-        }
-
-        // Слушатели изменений
-        widthInput.addEventListener('input', updatePlaceholder);
-        heightInput.addEventListener('input', updatePlaceholder);
-
-        // Инициализация при загрузке
-        updatePlaceholder();
-
-        // Привязка colorpicker'ов
-        bindColorPicker('bgColor', 'bgColorPicker');
-        bindColorPicker('textColor', 'textColorPicker');
-
-        // Обработка пресетов
-        document.querySelectorAll('.preset-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const targetId = this.dataset.target;
-                const color = this.dataset.color;
-                document.getElementById(targetId).value = color;
-                document.getElementById(`${targetId}Picker`).value = `#${color}`;
-                updatePreview();
-            });
-        });
-
-
-        inputs.forEach(id => {
-            document.getElementById(id).addEventListener('input', updatePreview);
-        });
-
-        document.getElementById('generate').addEventListener('click', function() {
-            updatePreview();
-            const url = document.getElementById('resultUrl').textContent;
-            navigator.clipboard.writeText(url).then(() => {
-                alert('URL скопирован в буфер обмена!');
-            });
-        });
-
-        updatePreview();
+    // Копирование URL
+    document.getElementById('generate').addEventListener('click', function() {
+      const url = document.getElementById('domainDisplay').textContent +
+              document.getElementById('pathDisplay').textContent;
+      navigator.clipboard.writeText(url).then(() => {
+        alert('URL скопирован в буфер обмена!');
+      });
     });
+
+    // Обработка выбора пресетов
+    document.querySelectorAll('.preset-select').forEach(select => {
+      select.addEventListener('change', function() {
+        if (this.value) {
+          const [width, height] = this.value.split('x');
+          widthInput.value = width;
+          heightInput.value = height;
+
+          // Обновляем плейсхолдер текста
+          updatePlaceholder();
+
+          // Сбрасываем другие селекты
+          document.querySelectorAll('.preset-select').forEach(s => {
+            if (s !== this) s.value = '';
+          });
+
+          updatePreview();
+        }
+      });
+    });
+
+    // Слушатели изменений
+    widthInput.addEventListener('input', updatePlaceholder);
+    heightInput.addEventListener('input', updatePlaceholder);
+
+    const inputs = ['bgColor', 'textColor', 'fontSize', 'text', 'format'];
+    inputs.forEach(id => {
+      document.getElementById(id).addEventListener('input', updatePreview);
+    });
+
+    // Color pickers
+    function bindColorPicker(textId, pickerId) {
+      const textInput = document.getElementById(textId);
+      const picker = document.getElementById(pickerId);
+
+      textInput.addEventListener('input', function() {
+        if (this.value.length === 3 || this.value.length === 6) {
+          picker.value = this.value.startsWith('#') ? this.value : `#${this.value}`;
+        }
+      });
+
+      picker.addEventListener('input', function() {
+        textInput.value = this.value.replace('#', '');
+        updatePreview();
+      });
+    }
+
+    bindColorPicker('bgColor', 'bgColorPicker');
+    bindColorPicker('textColor', 'textColorPicker');
+
+    // Инициализация
+    updatePlaceholder();
+    updatePreview();
+  });
 </script>
 </body>
 </html>
