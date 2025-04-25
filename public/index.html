@@ -206,44 +206,69 @@
     }
 
     /* Кнопка "копировать" после инпута */
-    .copy-container {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-top: 10px;
+    .result-url {
+      background: #eee;
+      padding: 1rem;
+      border-radius: 4px;
+      word-break: break-all;
+      font-family: monospace;
+      margin-top: 1rem;
+      position: relative;
+      padding-right: 80px; /* Место для кнопки */
+      border: 1px solid black;
+      font-size: 120%;
     }
 
     .copy-btn {
-      background: #3d4070;
-      color: white;
+      position: absolute;
+      right: 10px;
+      top: 20%;
+      transform: translateY(-50%);
+      /*background: #3d4070;*/
+      background: white;
+      color: black;
       border: none;
-      padding: 0.5rem 1rem;
+      padding: 0.3rem 0.8rem;
       border-radius: 4px;
       cursor: pointer;
-      font-size: 0.9rem;
+      font-size: 0.8rem;
       display: flex;
       align-items: center;
       gap: 5px;
     }
 
     .copy-btn:hover {
-      opacity: 0.9;
+      /*opacity: 0.5;*/
+      color: black;
+      background-color: #cccccc;
     }
 
     .copy-btn::before {
-      content: "⎘";
-      font-size: 1.1em;
+      /*content: "⎘";*/
+      content: "Copy";
+      font-size: 1em;
     }
 
     .copy-success {
+      position: absolute;
+      right: 10px;
+      top: -25px;
       color: #4CAF50;
       font-size: 0.9em;
       opacity: 0;
       transition: opacity 0.3s;
+      background: white;
+      padding: 2px 8px;
+      border-radius: 4px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     }
 
     .copy-success.visible {
       opacity: 1;
+    }
+
+    .domain-part {
+      color: #666;
     }
   </style>
 </head>
@@ -370,7 +395,7 @@
     <div class="preview-image">
       <img id="previewImg" src="/30/3d4070/ffffff/300x150.png" alt="Превью">
     </div>
-    <div class="preview-details">
+    <!--<div class="preview-details">
       <h3>Предпросмотр</h3>
       <div class="preview-meta">
         <div>Размер: <span id="previewSize">300 × 150px</span></div>
@@ -378,7 +403,7 @@
         <div>Цвет фона: <span id="previewBgColor">#3d4070</span></div>
         <div>Цвет текста: <span id="previewTextColor">#ffffff</span></div>
       </div>
-    </div>
+    </div>-->
   </div>
 
   <!--<button id="generate">Сгенерировать URL</button>-->
@@ -394,9 +419,7 @@
     <label>Ваш URL</label>
     <div class="result-url">
       <span class="domain-part" id="domainDisplay"></span><span id="pathDisplay"></span>
-    </div>
-    <div class="copy-container">
-      <button class="copy-btn" id="copyBtn">Copy</button>
+      <button class="copy-btn" id="copyBtn" title="Скопировать в буфер обмена"></button>
       <span class="copy-success" id="copySuccess">Скопировано!</span>
     </div>
   </div>
@@ -451,16 +474,6 @@
       document.getElementById('previewBgColor').textContent = `#${bgColor}`;
       document.getElementById('previewTextColor').textContent = `#${textColor}`;
     }
-
-    // Копирование URL
-    /*document.getElementById('generate').addEventListener('click', function() {
-      const url = document.getElementById('domainDisplay').textContent +
-              document.getElementById('pathDisplay').textContent;
-
-      navigator.clipboard.writeText(url).then(() => {
-        alert('URL скопирован в буфер обмена!');
-      });
-    });*/
 
     // новая кнопка копирования
     const copyBtn = document.getElementById('copyBtn');
