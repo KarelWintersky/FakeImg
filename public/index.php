@@ -2,14 +2,14 @@
 
 (new DateTime)->setTimezone(new DateTimeZone('Europe/Moscow'));
 
-require_once __DIR__ . '/_functions.php';
-$config = require_once __DIR__ . '/_config.php';
+require_once __DIR__ . '/functions.php';
+$config = require_once __DIR__ . '/config.php';
 $cacheFile = '';
 
 # ############################################### #
 
 $request = parseRequest($_SERVER['REQUEST_URI'], $config['defaults']);
-$isInternalRequest = checkReferer($_SERVER['HTTP_REFERER'] ?? '', $config['defaults']['protected_domains']);
+$isInternalRequest = isInternalRequest($request['params'], $config);
 
 if ($config['cache']['enabled']) {
     validateCache($config['cache']);

@@ -576,15 +576,23 @@
     }
 
     function updatePreview() {
-        const path = `/${previewConfig.fontSize}/${previewConfig.bgColor}/${previewConfig.textColor}/${previewConfig.width}x${previewConfig.height}.${previewConfig.format}` +
-            (previewConfig.text ? `?text=${encodeURIComponent(previewConfig.text)}` : '');
+        const queryImageSRC = [], queryPublicLink = [];
+        if (previewConfig.text) {
+            queryImageSRC.push(`text=${encodeURIComponent(previewConfig.text)}`);
+            queryPublicLink.push(`text=${encodeURIComponent(previewConfig.text)}`);
+        }
+        queryImageSRC.push('internal=1');
 
-        document.getElementById('pathDisplay').textContent = path;
-        document.getElementById('previewImg').src = path;
+        const path = `/${previewConfig.fontSize}/${previewConfig.bgColor}/${previewConfig.textColor}/${previewConfig.width}x${previewConfig.height}.${previewConfig.format}`;
 
-        const fullUrl = window.location.origin + path;
-        document.getElementById('previewImg').src = path;
-        document.getElementById('previewLink').href = fullUrl;
+        // pathDisplay - путь для копирования без internal
+        document.getElementById('pathDisplay').textContent = path + (queryPublicLink.length ? `?${queryPublicLink.join('&')}` : '');
+
+        // previewImg - картинка с internal
+        document.getElementById('previewImg').src = path + (queryImageSRC.length ? `?${queryImageSRC.join('&')}` : '');
+
+        // previewLink - ссылка на картинке на полный размер (без internal)
+        document.getElementById('previewLink').href = window.location.origin + path + (queryPublicLink.length ? `?${queryPublicLink.join('&')}` : '');
 
         const $previewSize = document.getElementById('previewSize');
         if ($previewSize) $previewSize.textContent = `${previewConfig.width} × ${previewConfig.height}px`;

@@ -24,6 +24,24 @@ function checkReferer(string $referer, array $allowedDomains): bool
     return false;
 }
 
+/**
+ * Проверяет, является ли запрос внутренним по параметру internal=1
+ *
+ * @param array $config
+ * @return bool
+ */
+function isInternalRequest(array $params, array $config): bool
+{
+    if (isset($params['internal'])) {
+        return $params['internal'] === '1';
+    }
+    return false;
+
+    // Дополнительная проверка по REFERER (если нужно)
+    /*$referer = $_SERVER['HTTP_REFERER'] ?? '';
+    return checkReferer($referer, $config['defaults']['allowed_domains']);*/
+}
+
 
 /**
  * Разбирает URL запроса
