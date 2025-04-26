@@ -1,6 +1,31 @@
 <?php
 
 /**
+ * Проверяет, является ли запрос внутренним (с одного из защищенных доменов)
+ *
+ * @param string $referer
+ * @param array $allowedDomains
+ * @return bool
+ */
+function checkReferer(string $referer, array $allowedDomains): bool
+{
+    if (empty($referer)) {
+        return false;
+    }
+
+    $refererHost = parse_url($referer, PHP_URL_HOST);
+
+    foreach ($allowedDomains as $domain) {
+        if (str_contains($refererHost, $domain)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+
+/**
  * Разбирает URL запроса
  */
 function parseRequest(string $requestUri, array $defaults): array
@@ -13,7 +38,7 @@ function parseRequest(string $requestUri, array $defaults): array
     $lastPart = end($parts);
 
     $format = pathinfo($lastPart, PATHINFO_EXTENSION);
-    if (!in_array($format, ['png', 'jpg', 'jpeg', 'webp'])) {
+    if (!in_array($format, ['png', 'jpg', 'jpeg', 'webp', 'gif'])) {
         $format = $defaults['default_format'];
     }
 
@@ -238,6 +263,9 @@ function saveToCache($image, string $cacheFile, string $format): void
         case 'webp':
             imagewebp($image, $tempFile, 90);
             break;
+        case 'gif':
+            imagegif($image, $tempFile);
+            break;
         case 'png':
         default:
             imagepng($image, $tempFile);
@@ -268,6 +296,10 @@ function sendImage($image, string $format, int $expires): void
         case 'webp':
             header('Content-Type: image/webp');
             imagewebp($image, null, 90);
+            break;
+        case 'gif':
+            header('Content-Type: image/gif');
+            imagegif($image);
             break;
         case 'png':
         default:
@@ -304,4 +336,103 @@ function hex2rgb($hex): array
     $g = hexdec(substr($hex, 2, 2));
     $b = hexdec(substr($hex, 4, 2));
     return [$r, $g, $b];
+}
+
+/**
+ * @param $image
+ * @param int $width
+ * @param int $height
+ * @param string $format
+ * @param int $borderSize
+ * @return false|GdImage|mixed|resource
+ */
+function addSmartBorder($image, int $width, int $height, string $format, int $borderSize = 1)
+{
+    if ($borderSize === 0) {
+        return $image;
+    }
+
+    if (in_array(strtolower($format), ['png', 'gif'])) {
+        return addTransparentBorder($image, $width, $height, $borderSize, $format);
+    } else {
+        return addWhiteBorder($image, $width, $height, $borderSize);
+    }
+}
+
+
+/**
+ * @param $image
+ * @param int $width
+ * @param int $height
+ * @param int $borderSize
+ * @param string $format
+ * @return false|GdImage|resource
+ */
+function addTransparentBorder($image, int $width, int $height, int $borderSize, string $format)
+{
+    if ($borderSize === 0) {
+        return $image;
+    }
+
+    // Создаем новое изображение с прозрачным фоном
+    $newWidth = $width + ($borderSize * 2);
+    $newHeight = $height + ($borderSize * 2);
+    $newImage = imagecreatetruecolor($newWidth, $newHeight);
+
+    // Устанавливаем прозрачность в зависимости от формата
+    if ($format === 'png') {
+        imagesavealpha($newImage, true);
+        $transparent = imagecolorallocatealpha($newImage, 0, 0, 0, 127);
+    } else { // GIF
+        $transparent = imagecolorallocate($newImage, 0, 0, 0);
+        imagecolortransparent($newImage, $transparent);
+    }
+
+    imagefill($newImage, 0, 0, $transparent);
+
+    // Копируем оригинальное изображение с отступом
+    imagecopy(
+        $newImage,
+        $image,
+        $borderSize,
+        $borderSize,
+        0,
+        0,
+        $width,
+        $height
+    );
+
+    imagedestroy($image);
+    return $newImage;
+}
+
+function addWhiteBorder($image, int $width, int $height, int $borderSize = 1)
+{
+    if ($borderSize === 0) {
+        return $image;
+    }
+
+    // Создаем новое изображение с белым фоном
+    $newWidth = $width + ($borderSize * 2);
+    $newHeight = $height + ($borderSize * 2);
+    $newImage = imagecreatetruecolor($newWidth, $newHeight);
+
+    // Заливаем белым цветом
+    $white = imagecolorallocate($newImage, 255, 255, 255);
+    imagefill($newImage, 0, 0, $white);
+
+    // Копируем оригинальное изображение с отступом
+    imagecopy(
+        $newImage,
+        $image,
+        $borderSize,
+        $borderSize,
+        0,
+        0,
+        $width,
+        $height
+    );
+
+    imagedestroy($image);
+    return $newImage;
 }

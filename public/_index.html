@@ -9,8 +9,8 @@
           content="FakeImg - генератор плейсхолдеров изображений. Создавайте временные изображения любого размера через URL запросы.">
     <meta name="keywords"
           content="плейсхолдер, генератор изображений, fakeimg, placeholder, временные изображения, mockup, баннеры">
-    <meta name="author" content="Karel Wintersky and Deepseek">
-    <meta name="copyright" content="2025, Karel Wintersky with Deepseek assisting">
+    <meta name="author" content="Deepseek under Karel Wintersky's commands">
+    <meta name="copyright" content="2025, Deepseek under Karel Wintersky's commands">
     <meta name="robots" content="index, follow">
     <meta name="theme-color" content="#3d4070">
 
@@ -336,8 +336,8 @@
     <!-- Блок с пресетами размеров -->
     <div class="size-presets">
         <div class="form-group">
-            <label>Commonly used</label>
-            <select class="preset-select" data-type="square">
+            <label for="preset-select-square">Commonly used</label>
+            <select class="preset-select" data-type="square" id="preset-select-square">
                 <option value="">Select size...</option>
                 <option value="50x50">50 × 50</option>
                 <option value="60x60">60 × 60</option>
@@ -354,8 +354,8 @@
         </div>
 
         <div class="form-group">
-            <label>Common banners</label>
-            <select class="preset-select" data-type="banner">
+            <label for="preset-select-banner">Common banners</label>
+            <select class="preset-select" data-type="banner" id="preset-select-banner">
                 <option value="">Select size...</option>
                 <option value="728x90">728 × 90</option>
                 <option value="468x60">468 × 60</option>
@@ -381,8 +381,8 @@
         </div>
 
         <div class="form-group">
-            <label>Web creation</label>
-            <select class="preset-select" data-type="web">
+            <label for="preset-select-web">Web creation</label>
+            <select class="preset-select" data-type="web" id="preset-select-web">
                 <option value="">Select size...</option>
                 <option value="16x16">16 × 16 (favicon)</option>
                 <option value="57x57">57 × 57 (Apple)</option>
@@ -441,6 +441,7 @@
             <option value="jpg">JPG</option>
             <option value="png">PNG</option>
             <option value="webp">WebP</option>
+            <option value="gif">GIF</option>
         </select>
     </div>
 
