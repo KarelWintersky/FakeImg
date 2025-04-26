@@ -27,6 +27,7 @@ function checkReferer(string $referer, array $allowedDomains): bool
 /**
  * Проверяет, является ли запрос внутренним по параметру internal=1
  *
+ * @param array $params
  * @param array $config
  * @return bool
  */
