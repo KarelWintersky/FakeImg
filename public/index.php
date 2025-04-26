@@ -25,7 +25,7 @@ $defaults = [
     'max_font_size' => 100,
     'font_ratio' => 0.15, // 15% от высоты изображения
     // font
-    'font'      =>  __DIR__ . '/../fonts/segoe-ui.ttf'
+    'font'      =>  __DIR__ . '/fonts/segoe-ui.ttf'
 ];
 
 // Получаем путь и параметры запроса
