@@ -226,7 +226,7 @@ function validateCache(array $cacheConfig): void
         mkdir($cacheConfig['directory'], 0755, true);
     }
 
-    if (mt_rand(1, $cacheConfig['gc_probability']) === 1) {
+    if ($cacheConfig['gc_probability'] > 0 && mt_rand(1, $cacheConfig['gc_probability']) === 1) {
         cleanupCache($cacheConfig);
     }
 }
@@ -260,8 +260,8 @@ function trySendCachedImage(string $cacheFile, string $format, int $expires): bo
 
         header('Content-Type: ' . $mimeTypes[$format]);
         header('Content-Length: ' . filesize($cacheFile));
-        header('Cache-Control: public, max-age=' . ($GLOBALS['cacheConfig']['expires'] / 1));
-        header('Expires: ' . gmdate('D, d M Y H:i:s', time() + $GLOBALS['cacheConfig']['expires']) . ' GMT');
+        header('Cache-Control: public, max-age=' . ($expires / 1));
+        header('Expires: ' . gmdate('D, d M Y H:i:s', time() + $expires) . ' GMT');
         header('Last-Modified: ' . gmdate('D, d M Y H:i:s', filemtime($cacheFile)) . ' GMT');
 
         readfile($cacheFile);

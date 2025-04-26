@@ -2,11 +2,10 @@
 
 return [
     'cache' => [
-        'enabled' => false,
-        'directory' => __DIR__ . '/../cache',
-        'expires' => 1,
-        'gc_probability' => 10,
-        'cacheFile' =>  '',
+        'enabled' => true,                      // включено ли кэширование?
+        'directory' => __DIR__ . '/../cache',   // путь к кэшу
+        'expires' => 1,                         // время кэширования в секундах
+        'gc_probability' => 10,                 // с вероятностью 1/N устаревшие файлы будут очищены
     ],
     'defaults' => [
         'font_size' => 30,
