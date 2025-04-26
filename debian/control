@@ -1,0 +1,14 @@
+Source: fakeimg
+Section: web
+Priority: optional
+Maintainer: Karel Wintersky <karel.wintersky@yandex.ru>
+Build-Depends: debhelper (>= 9)
+Standards-Version: 4.6.0
+Homepage: https://github.com/KarelWintersky/FakeImg.git
+
+Package: fakeimg
+Architecture: all
+Depends: ${misc:Depends}, nginx | nginx-full, php-fpm, php-gd
+Description: Simple placeholder image generator
+ FakeImg is a lightweight service that generates placeholder images
+ with customizable size, background color, text and format.

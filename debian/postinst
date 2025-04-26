@@ -1,0 +1,55 @@
+#!/bin/sh
+
+set -e
+ANSI_RED='\033[0;31m'
+ANSI_GREEN='\033[0;32m'
+ANSI_YELLOW='\033[1;33m'
+ANSI_RESET='\033[0m'
+
+PHP_VERSIONS=$(ps -e -o stat,command | grep -E '^Ss\s+php-fpm' | grep -E '[0-9]+\.[0-9]+' -o)
+
+PATH_PROJECT=/var/www/fakeimg
+PATH_PUBLIC=${PATH_PROJECT}/public
+
+case "$1" in
+    configure)
+        echo "\n ${ANSI_YELLOW} Running FakeImg post-install... ${ANSI_RESET} \n"
+        touch $PATH_PUBLIC/sitemap.xml
+
+        echo -n "Checking CONFIG ..."
+        if [ -e "${PATH_PUBLIC}/config.php" ]; then
+            echo "${ANSI_GREEN} FOUND ${ANSI_RESET}";
+        else
+            echo "${ANSI_RED} NOT FOUND! ${ANSI_RESET}" ;
+        fi
+
+        echo "Clearing cache..."
+        rm -f $(PATH_PROJECT)/cache/*
+        rm -rf /dev/shm/fakeimg_cache/*
+
+        echo "Fixing access rights..."
+        chown -R www-data:www-data ${PATH_PROJECT}/*
+        echo "${ANSI_GREEN} Ok. ${ANSI_RESET}"
+
+        echo
+        echo "Restarting all running php-fpm processes..."
+        for version in $PHP_VERSIONS; do echo "Restarting ${ANSI_YELLOW}php${version}-fpm${ANSI_RESET} process..."; systemctl restart php${version}-fpm; done
+        echo "${ANSI_GREEN}Finished.${ANSI_RESET}"
+
+        echo
+        echo "${ANSI_YELLOW} ... post-install finished. ${ANSI_RESET}"
+        echo
+    ;;
+
+    abort-upgrade|abort-remove|abort-deconfigure)
+    ;;
+
+    *)
+        echo "postinst called with unknown argument \`$1'" >&2
+        exit 1
+    ;;
+esac
+
+#DEBHELPER#
+
+exit 0
