@@ -37,11 +37,11 @@ parse_str($query, $params);
 $parts = explode('/', trim($path, '/'));
 
 // Создаем папку для кэша если нужно
-if ($cacheConfig['enabled'] && !is_dir($cacheConfig['directory'])) {
-    mkdir($cacheConfig['directory'], 0755, true);
-}
-
 if ($cacheConfig['enabled']) {
+    if (!is_dir($cacheConfig['directory'])) {
+        mkdir($cacheConfig['directory'], 0755, true);
+    }
+
     $cacheKey = getCacheKey($defaults);
     $format = pathinfo(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH), PATHINFO_EXTENSION);
     $format = in_array($format, ['png', 'jpg', 'jpeg', 'webp']) ? $format : $defaults['default_format'];
