@@ -3,13 +3,14 @@
 require_once __DIR__ . '/../vendor/autoload.php';
 
 use FakeImageSrc\Common;
-use FakeImageSrc\WithGD;
 
 (new DateTime)->setTimezone(new DateTimeZone('Europe/Moscow'));
 
 // require_once __DIR__ . '/functions.php';
 $config = require_once __DIR__ . '/config.php';
 $cacheFile = '';
+
+$processor = \FakeImageSrc\ImageProcessorFactory::create('gd');
 
 # ############################################### #
 
@@ -30,10 +31,10 @@ if ($config['cache']['enabled']) {
 $imageParams = Common::prepareImageParameters($request, $config['defaults']);
 Common::validateParameters($imageParams);
 
-$image = WithGD::generateImage($imageParams);
+$image = $processor->generateImage($imageParams);
 
 if ($isInternalRequest) {
-    $image = WithGD::addSmartBorder(
+    $image = $processor->addSmartBorder(
         $image,
         $imageParams['width'],
         $imageParams['height'],
@@ -43,10 +44,10 @@ if ($isInternalRequest) {
 }
 
 if ($config['cache']['enabled']) {
-    WithGD::saveToCache($image, $cacheFile, $request['format']);
+    $processor->saveToCache($image, $cacheFile, $request['format']);
 }
 
-WithGD::sendImage($image, $request['format'], $config['cache']['expires']);
+$processor->sendImage($image, $request['format'], $config['cache']['expires']);
 imagedestroy($image);
 
 

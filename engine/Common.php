@@ -181,10 +181,11 @@ class Common
     {
         if (file_exists($cacheFile) && (time() - filemtime($cacheFile)) < $expires) {
             $mimeTypes = [
-                'png' => 'image/png',
-                'jpg' => 'image/jpeg',
-                'jpeg' => 'image/jpeg',
-                'webp' => 'image/webp'
+                'png'   =>  'image/png',
+                'jpg'   =>  'image/jpeg',
+                'jpeg'  =>  'image/jpeg',
+                'webp'  =>  'image/webp',
+                'gif'   =>  'image/gif'
             ];
 
             header('Content-Type: ' . $mimeTypes[$format]);
@@ -227,6 +228,25 @@ class Common
         $b = hexdec(substr($hex, 4, 2));
         return [$r, $g, $b];
     }
+
+    /**
+     * @param $defaults
+     * @return string
+     */
+    public static function getCacheKey($defaults): string
+    {
+        $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+        $query = parse_url($_SERVER['REQUEST_URI'], PHP_URL_QUERY);
+
+        // Нормализуем параметры для единообразия
+        parse_str($query, $params);
+        if (!isset($params['text']) && $defaults['default_text'] === null) {
+            unset($params['text']); // Удаляем text если он не указан и по умолчанию null
+        }
+
+        return md5($path . serialize($params));
+    }
+
 
 
 

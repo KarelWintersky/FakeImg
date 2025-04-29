@@ -3,20 +3,30 @@
 namespace FakeImageSrc;
 
 use Jcupitt\Vips;
-use Jcupitt\Vips\Exception;
 
-class WithVips
+class ImageProcessor_Vips implements ImageProcessorInterface
 {
+    private array $config;
+
+    public function __construct(array $config = [])
+    {
+        $this->config = $config;
+
+    }
+
+    /**
+     * @inheritDoc
+     */
     /**
      * @param array $request
      * @param array $config
      * @return Vips\Image
      * @throws Vips\Exception
      */
-    public static function generateImage(array $request, array $config): Vips\Image
+    public function generateImage(array $request): Vips\Image
     {
         // Создаем базовое изображение
-        $bgColor = Common::hex2rgb($request['bg_color'] ?? $config['defaults']['bg_color']);
+        $bgColor = Common::hex2rgb($request['bg_color'] ?? $this->config['defaults']['bg_color']);
 
         $image = Vips\Image::newFromArray([$bgColor])->embed(
             0, 0,
@@ -27,16 +37,16 @@ class WithVips
 
         // Добавляем текст
         $text = $request['text'] ?? "{$request['width']}x{$request['height']}";
-        $fontSize = self::calculateFontSize($request, $config, $text);
+        $fontSize = self::calculateFontSize($request, $this->config, $text);
 
         $textImage = Vips\Image::text($text, [
-            'font' => $config['defaults']['font_file'],
+            'font' => $this->config['defaults']['font_file'],
             'width' => $request['width'] - 20,
             'height' => $request['height'] - 20,
             'size' => $fontSize,
             'align' => Vips\Align::CENTRE,
             'rgba' => true,
-            'fontfile' => $config['defaults']['font_file'],
+            'fontfile' => $this->config['defaults']['font_file'],
             'dpi' => 72,
         ]);
 
@@ -59,30 +69,31 @@ class WithVips
     }
 
     /**
-     * Добавление прозрачной рамки
+     * @inheritDoc
      */
-    public static function addTransparentBorder(Vips\Image $image, int $width, int $height, int $borderSize): Vips\Image
+    public function addSmartBorder($image, int $width, int $height, string $format, int $borderSize = 1): mixed
     {
-        $newWidth = $width + $borderSize * 2;
-        $newHeight = $height + $borderSize * 2;
-
-        return $image->embed(
-            $borderSize,
-            $borderSize,
-            $newWidth,
-            $newHeight,
-            ['extend' => Vips\Extend::BACKGROUND, 'background' => [0, 0, 0, 0]]
-        );
+        // TODO: Implement addSmartBorder() method.
     }
 
     /**
-     * Отправка изображения
-     * @throws Exception
+     * @inheritDoc
      */
-    public static function sendImage(Vips\Image $image, string $format): void
+    public function saveToCache($image, string $cacheFile, string $format): void
     {
-        header("Cache-Control: public, max-age=3600");
-        header("Expires: " . gmdate('D, d M Y H:i:s', time() + 3600) . ' GMT');
+        // TODO: Implement saveToCache() method.
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function sendImage($image, string $format, int $expires): void
+    {
+        $h_max_age = 'Cache-Control: public, max-age=' . $expires;
+        $h_expires = 'Expires: ' . gmdate('D, d M Y H:i:s', time() + $expires) . ' GMT';
+
+        header($h_max_age);
+        header($h_expires);
 
         switch (strtolower($format)) {
             case 'jpg':
@@ -105,6 +116,8 @@ class WithVips
                 break;
         }
     }
+
+    ########################################################################
 
     public static function calculateFontSize(array $request, array $config, string $text): float
     {
@@ -140,6 +153,20 @@ class WithVips
             min($config['defaults']['max_font_size'], $fontSize));
     }
 
+    /**
+     * Добавление прозрачной рамки
+     */
+    public static function addTransparentBorder(Vips\Image $image, int $width, int $height, int $borderSize): Vips\Image
+    {
+        $newWidth = $width + $borderSize * 2;
+        $newHeight = $height + $borderSize * 2;
 
-
+        return $image->embed(
+            $borderSize,
+            $borderSize,
+            $newWidth,
+            $newHeight,
+            ['extend' => Vips\Extend::BACKGROUND, 'background' => [0, 0, 0, 0]]
+        );
+    }
 }
