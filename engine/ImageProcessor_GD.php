@@ -4,32 +4,102 @@ namespace FakeImageSrc;
 
 use GdImage;
 
-class WithGD
+class ImageProcessor_GD implements ImageProcessorInterface
 {
-    /**
-     * Генерация изображения
-     */
-    public static function generateImage(array &$params)
+    public function __construct()
     {
-        $image = imagecreatetruecolor($params['width'], $params['height']);
 
-        $bgRgb = Common::hex2rgb($params['bgColor']);
-        $textRgb = Common::hex2rgb($params['textColor']);
+    }
+
+    public function generateImage(array $imageParams)
+    {
+        $image = imagecreatetruecolor($imageParams['width'], $imageParams['height']);
+
+        $bgRgb = Common::hex2rgb($imageParams['bgColor']);
+        $textRgb = Common::hex2rgb($imageParams['textColor']);
 
         $bgColorRes = imagecolorallocate($image, $bgRgb[0], $bgRgb[1], $bgRgb[2]);
         $textColorRes = imagecolorallocate($image, $textRgb[0], $textRgb[1], $textRgb[2]);
 
-        $params['textColorRes'] = $textColorRes;
+        $imageParams['textColorRes'] = $textColorRes;
 
-        imagefilledrectangle($image, 0, 0, $params['width'], $params['height'], $bgColorRes);
+        imagefilledrectangle($image, 0, 0, $imageParams['width'], $imageParams['height'], $bgColorRes);
 
-        if (file_exists($params['font'])) {
-            self::renderTextWithTrueTypeFont($image, $params);
+        if (file_exists($imageParams['font'])) {
+            self::renderTextWithTrueTypeFont($image, $imageParams);
         } else {
-            self::renderTextWithBuiltInFont($image, $params);
+            self::renderTextWithBuiltInFont($image, $imageParams);
         }
 
         return $image;
+    }
+
+    public function addSmartBorder($image, int $width, int $height, string $format, int $borderSize = 1):mixed
+    {
+        if ($borderSize === 0) {
+            return $image;
+        }
+
+        if (in_array(strtolower($format), ['png', 'gif'])) {
+            return self::addTransparentBorder($image, $width, $height, $borderSize, $format);
+        } else {
+            return self::addWhiteBorder($image, $width, $height, $borderSize);
+        }
+    }
+
+    public function saveToCache($image, string $cacheFile, string $format): void
+    {
+        $tempFile = tempnam(sys_get_temp_dir(), 'imgcache');
+
+        switch (strtolower($format)) {
+            case 'jpg':
+            case 'jpeg':
+                imagejpeg($image, $tempFile, 90);
+                break;
+            case 'webp':
+                imagewebp($image, $tempFile, 90);
+                break;
+            case 'gif':
+                imagegif($image, $tempFile);
+                break;
+            case 'png':
+            default:
+                imagepng($image, $tempFile);
+                break;
+        }
+
+        rename($tempFile, $cacheFile);
+        chmod($cacheFile, 0644);
+    }
+
+    public function sendImage($image, string $format, int $expires): void
+    {
+        $h_max_age = 'Cache-Control: public, max-age=' . $expires;
+        $h_expires = 'Expires: ' . gmdate('D, d M Y H:i:s', time() + $expires) . ' GMT';
+
+        header($h_max_age);
+        header($h_expires);
+
+        switch (strtolower($format)) {
+            case 'jpg':
+            case 'jpeg':
+                header('Content-Type: image/jpeg');
+                imagejpeg($image, null, 90);
+                break;
+            case 'webp':
+                header('Content-Type: image/webp');
+                imagewebp($image, null, 90);
+                break;
+            case 'gif':
+                header('Content-Type: image/gif');
+                imagegif($image);
+                break;
+            case 'png':
+            default:
+                header('Content-Type: image/png');
+                imagepng($image);
+                break;
+        }
     }
 
     /**
@@ -77,85 +147,6 @@ class WithGD
             $params['text'],
             $params['textColorRes']
         );
-    }
-
-    public static function saveToCache($image, string $cacheFile, string $format): void
-    {
-        $tempFile = tempnam(sys_get_temp_dir(), 'imgcache');
-
-        switch (strtolower($format)) {
-            case 'jpg':
-            case 'jpeg':
-                imagejpeg($image, $tempFile, 90);
-                break;
-            case 'webp':
-                imagewebp($image, $tempFile, 90);
-                break;
-            case 'gif':
-                imagegif($image, $tempFile);
-                break;
-            case 'png':
-            default:
-                imagepng($image, $tempFile);
-                break;
-        }
-
-        rename($tempFile, $cacheFile);
-        chmod($cacheFile, 0644);
-    }
-
-    /**
-     * Отправка изображения
-     */
-    public static function sendImage($image, string $format, int $expires): void
-    {
-        $h_max_age = 'Cache-Control: public, max-age=' . $expires;
-        $h_expires = 'Expires: ' . gmdate('D, d M Y H:i:s', time() + $expires) . ' GMT';
-
-        header($h_max_age);
-        header($h_expires);
-
-        switch (strtolower($format)) {
-            case 'jpg':
-            case 'jpeg':
-                header('Content-Type: image/jpeg');
-                imagejpeg($image, null, 90);
-                break;
-            case 'webp':
-                header('Content-Type: image/webp');
-                imagewebp($image, null, 90);
-                break;
-            case 'gif':
-                header('Content-Type: image/gif');
-                imagegif($image);
-                break;
-            case 'png':
-            default:
-                header('Content-Type: image/png');
-                imagepng($image);
-                break;
-        }
-    }
-
-    /**
-     * @param $image
-     * @param int $width
-     * @param int $height
-     * @param string $format
-     * @param int $borderSize
-     * @return false|GdImage|mixed|resource
-     */
-    public static function addSmartBorder($image, int $width, int $height, string $format, int $borderSize = 1)
-    {
-        if ($borderSize === 0) {
-            return $image;
-        }
-
-        if (in_array(strtolower($format), ['png', 'gif'])) {
-            return self::addTransparentBorder($image, $width, $height, $borderSize, $format);
-        } else {
-            return self::addWhiteBorder($image, $width, $height, $borderSize);
-        }
     }
 
     /**
@@ -234,5 +225,4 @@ class WithGD
         imagedestroy($image);
         return $newImage;
     }
-
 }
