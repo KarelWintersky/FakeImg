@@ -1,34 +1,39 @@
 <?php
 
+require_once __DIR__ . '/../vendor/autoload.php';
+
+use FakeImageSrc\Common;
+use FakeImageSrc\WithGD;
+
 (new DateTime)->setTimezone(new DateTimeZone('Europe/Moscow'));
 
-require_once __DIR__ . '/functions.php';
+// require_once __DIR__ . '/functions.php';
 $config = require_once __DIR__ . '/config.php';
 $cacheFile = '';
 
 # ############################################### #
 
-$request = parseRequest($_SERVER['REQUEST_URI'], $config['defaults']);
-$isInternalRequest = isInternalRequest($request['params'], $config);
+$request = Common::parseRequest($_SERVER['REQUEST_URI'], $config['defaults']);
+$isInternalRequest = Common::isInternalRequest($request['params'], $config);
 
 if ($config['cache']['enabled']) {
-    validateCache($config['cache']);
+    Common::validateCache($config['cache']);
 
     $cacheKey = md5($request['cacheKey'] . ($isInternalRequest ? '_internal' : ''));
-    $cacheFile = getCacheFilePath($config['cache'], $cacheKey, $request['format']);
+    $cacheFile = Common::getCacheFilePath($config['cache'], $cacheKey, $request['format']);
 
-    if (trySendCachedImage($cacheFile, $request['format'], $config['cache']['expires'])) {
+    if (Common::trySendCachedImage($cacheFile, $request['format'], $config['cache']['expires'])) {
         exit;
     }
 }
 
-$imageParams = prepareImageParameters($request, $config['defaults']);
-validateParameters($imageParams);
+$imageParams = Common::prepareImageParameters($request, $config['defaults']);
+Common::validateParameters($imageParams);
 
-$image = generateImage($imageParams);
+$image = WithGD::generateImage($imageParams);
 
 if ($isInternalRequest) {
-    $image = addSmartBorder(
+    $image = WithGD::addSmartBorder(
         $image,
         $imageParams['width'],
         $imageParams['height'],
@@ -38,10 +43,10 @@ if ($isInternalRequest) {
 }
 
 if ($config['cache']['enabled']) {
-    saveToCache($image, $cacheFile, $request['format']);
+    WithGD::saveToCache($image, $cacheFile, $request['format']);
 }
 
-sendImage($image, $request['format'], $config['cache']['expires']);
+WithGD::sendImage($image, $request['format'], $config['cache']['expires']);
 imagedestroy($image);
 
 
