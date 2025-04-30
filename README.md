@@ -196,7 +196,7 @@ return [
         'min_font_size' => 8,
         'max_font_size' => 100,
         'font_ratio' => 0.15,
-        'font' => __DIR__ . '/fonts/segoe-ui.ttf',
+        'font_file' => __DIR__ . '/fonts/segoe-ui.ttf',
         'max_dimension' => 2000,
 
         // Замените на свои домены

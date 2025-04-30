@@ -10,23 +10,24 @@ return [
         'gc_probability' => 10,                 // с вероятностью 1/N устаревшие файлы будут очищены
     ],
     'defaults' => [
-        'font_size' => 30,
-        'bg_color' => '3d4070',
-        'text_color' => 'ffffff',
-
-        'default_width' =>  300,
+        'default_width'     =>  300,
         'default_height'    =>  200,
 
+        'background_color'  =>  '3d4070',
+        'text_color'        =>  'ffffff',
+
+        'font_size' => 30,
 
         'default_size' => 150,
         'default_text' => null,
-        'default_format' => 'png',
+
+        'format'            => 'png',   // default output file format, one of ['png', 'jpg', 'jpeg', 'webp', 'gif']
 
         'min_font_size' => 8,
         'max_font_size' => 100,
         'font_ratio' => 0.15,
 
-        'font' => __DIR__ . '/fonts/segoe-ui.ttf',
+        'font_file' => __DIR__ . '/fonts/segoe-ui.ttf',
         'max_dimension' => 2000,
 
         // Замените на свои домены

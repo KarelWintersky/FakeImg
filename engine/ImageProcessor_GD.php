@@ -6,9 +6,11 @@ use GdImage;
 
 class ImageProcessor_GD implements ImageProcessorInterface
 {
-    public function __construct()
-    {
+    private array $config;
 
+    public function __construct(array $config)
+    {
+        $this->config = $config;
     }
 
     public function generateImage(array $imageParams)
@@ -25,7 +27,7 @@ class ImageProcessor_GD implements ImageProcessorInterface
 
         imagefilledrectangle($image, 0, 0, $imageParams['width'], $imageParams['height'], $bgColorRes);
 
-        if (file_exists($imageParams['font'])) {
+        if (file_exists($imageParams['font_file'])) {
             self::renderTextWithTrueTypeFont($image, $imageParams);
         } else {
             self::renderTextWithBuiltInFont($image, $imageParams);
@@ -49,6 +51,10 @@ class ImageProcessor_GD implements ImageProcessorInterface
 
     public function saveToCache($image, string $cacheFile, string $format): void
     {
+        /**
+         * @var GdImage $image
+         */
+
         $tempFile = tempnam(sys_get_temp_dir(), 'imgcache');
 
         switch (strtolower($format)) {
@@ -74,6 +80,10 @@ class ImageProcessor_GD implements ImageProcessorInterface
 
     public function sendImage($image, string $format, int $expires): void
     {
+        /**
+         * @var GdImage $image
+         */
+
         $h_max_age = 'Cache-Control: public, max-age=' . $expires;
         $h_expires = 'Expires: ' . gmdate('D, d M Y H:i:s', time() + $expires) . ' GMT';
 
@@ -107,7 +117,7 @@ class ImageProcessor_GD implements ImageProcessorInterface
      */
     public static function renderTextWithTrueTypeFont($image, array $params): void
     {
-        $bbox = imagettfbbox($params['fontSize'], 0, $params['font'], $params['text']);
+        $bbox = imagettfbbox($params['fontSize'], 0, $params['font_file'], $params['text']);
         $textWidth = $bbox[2] - $bbox[0];
         $textHeight = $bbox[1] - $bbox[7];
 
@@ -121,7 +131,7 @@ class ImageProcessor_GD implements ImageProcessorInterface
             (int)$x,
             (int)$y,
             $params['textColorRes'],
-            $params['font'],
+            $params['font_file'],
             $params['text']
         );
     }
@@ -224,5 +234,10 @@ class ImageProcessor_GD implements ImageProcessorInterface
 
         imagedestroy($image);
         return $newImage;
+    }
+
+    public function imageDestroy($image)
+    {
+        return imagedestroy($image);
     }
 }

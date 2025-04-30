@@ -12,10 +12,10 @@ class ImageProcessorFactory
      * @param string $type
      * @return ImageProcessorInterface
      */
-    public static function create(string $type): ImageProcessorInterface {
+    public static function create(string $type, array $config = []): ImageProcessorInterface {
         return match ($type) {
-            'gd' => new ImageProcessor_GD(),
-            'vips' => new ImageProcessor_Vips(),
+            'gd' => new ImageProcessor_GD($config),
+            'vips' => new ImageProcessor_Vips($config),
             default => throw new InvalidArgumentException('Unknown processor type'),
         };
     }

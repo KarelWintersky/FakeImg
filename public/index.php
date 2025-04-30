@@ -6,11 +6,10 @@ use FakeImageSrc\Common;
 
 (new DateTime)->setTimezone(new DateTimeZone('Europe/Moscow'));
 
-// require_once __DIR__ . '/functions.php';
 $config = require_once __DIR__ . '/config.php';
 $cacheFile = '';
 
-$processor = \FakeImageSrc\ImageProcessorFactory::create('gd');
+$processor = \FakeImageSrc\ImageProcessorFactory::create('vips', $config);
 
 # ############################################### #
 
@@ -48,7 +47,8 @@ if ($config['cache']['enabled']) {
 }
 
 $processor->sendImage($image, $request['format'], $config['cache']['expires']);
-imagedestroy($image);
+
+$processor->imageDestroy($image);
 
 
 

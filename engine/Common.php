@@ -61,7 +61,7 @@ class Common
 
         $format = pathinfo($lastPart, PATHINFO_EXTENSION);
         if (!in_array($format, ['png', 'jpg', 'jpeg', 'webp', 'gif'])) {
-            $format = $defaults['default_format'];
+            $format = $defaults['format'];
         }
 
         $parts[count($parts)-1] = pathinfo($lastPart, PATHINFO_FILENAME);
@@ -90,11 +90,11 @@ class Common
             $fontSize = null;
         } elseif (count($parts) >= 2) {
             [$textColor, $dimensions] = array_slice($parts, 0, 2);
-            $bgColor = $defaults['bg_color'];
+            $bgColor = $defaults['background_color'];
             $fontSize = null;
         } else {
             $dimensions = $parts[0] ?? $defaults['default_size'].'x'.$defaults['default_size'];
-            $bgColor = $defaults['bg_color'];
+            $bgColor = $defaults['background_color'];
             $textColor = $defaults['text_color'];
             $fontSize = null;
         }
@@ -131,7 +131,7 @@ class Common
             'textColor' => $textColor,
             'fontSize' => $fontSize,
             'text' => $text,
-            'font' => $defaults['font'],
+            'font_file' => $defaults['font_file'],
         ];
     }
 

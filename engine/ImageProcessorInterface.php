@@ -42,5 +42,7 @@ interface ImageProcessorInterface
      * @param int $expires
      * @return void
      */
-    public function sendImage($image, string $format, int $expires): void;
+    public function sendImage(mixed $image, string $format, int $expires): void;
+
+    public function imageDestroy($image);
 }
