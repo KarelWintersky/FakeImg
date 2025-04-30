@@ -19,7 +19,7 @@ class ImageProcessor_Vips implements ImageProcessorInterface
     {
         // Добавляем текст
         $text = $request['text'] ?? "{$imageParams['width']}x{$imageParams['height']}";
-        $fontSize = self::calculateFontSize($imageParams, $this->config, $text);
+        // $fontSize = self::calculateFontSize($imageParams, $this->config, $text);
 
         if (file_exists($this->config['defaults']['font_file'])) {
             $textImage = Image::text($text, [
@@ -29,7 +29,6 @@ class ImageProcessor_Vips implements ImageProcessorInterface
                 'align' => Vips\Align::CENTRE,
                 'rgba' => true,
                 'fontfile' => $this->config['defaults']['font_file'],
-                // 'dpi' => 72,
             ]);
         } else {
             $textImage = Vips\Image::text(
@@ -38,35 +37,30 @@ class ImageProcessor_Vips implements ImageProcessorInterface
                     'font' => 'sans', // Встроенный шрифт (sans, serif, mono)
                     'width' => $image->width,
                     'height' => $image->height,
-                    // 'dpi' => 72,
                     'align' => Vips\Align::CENTRE,
                     'rgba' => true
                 ]
             );
         }
-
-        //
-        // $textRgb = Common::hex2rgb($imageParams['textColor']);
-
-        // Создаем маску из текста
-        // $mask = $textImage->extract_band(3); // Альфа-канал
+        $color
+            = Image::newFromArray([ Common::hex2rgb($imageParams['textColor']) ])
+            ->embed(0, 0, $textImage->width, $textImage->height, ['extend' => 'copy'])
+            /*->bandjoin($textImage)*/;
 
         // Создаем цветное изображение текста
-        /*$coloredText = Vips\Image::black($image->width, $image->height)
-            ->add([ $textRgb[0], $textRgb[1], $textRgb[2]])
-            ->bandjoin(255); // Добавляем альфа-канал*/
+        $coloredText = Vips\Image::black($image->width, $image->height)
+            ->add([ Common::hex2rgb($imageParams['textColor'])  ])
+            /*->bandjoin(255)*/; // Добавляем альфа-канал
 
         // Накладываем текст на изображение
         $image = $image->composite2(
-            $textImage,
+            $color,
             Vips\BlendMode::OVER,
             [
                 'x' => (int)(($imageParams['width'] - $textImage->width) / 2),
                 'y' => (int)(($imageParams['height'] - $textImage->height) / 2),
-                // 'compositing_space' => $image->interpretation
             ]
         );
-
 
         return $image;
     }
@@ -82,20 +76,12 @@ class ImageProcessor_Vips implements ImageProcessorInterface
     public function generateImage(array $imageParams): Image
     {
         // Создаем базовое изображение
-        $bgColor = Common::hex2rgb($imageParams['bgColor'] ?? $this->config['defaults']['bg_color']);
+        $bgColor = Common::hex2rgb($imageParams['bgColor'] ?? $this->config['defaults']['background_color']);
 
-        $image = Image::newFromArray([$bgColor])->embed(
-            0, 0,
-            $imageParams['width'],
-            $imageParams['height'],
-            ['extend' => Vips\Extend::COPY]
-        );
-
-        /*if (file_exists($imageParams['font'])) {
-            self::renderTextWithTrueTypeFont($image, $imageParams);
-        } else {
-            self::renderTextWithBuiltInFont($image, $imageParams);
-        }*/
+        $image
+            = Vips\Image::black($imageParams['width'], $imageParams['height'])
+            ->add($bgColor)
+            ->cast('uchar');
 
         $image = self::renderText($image, $imageParams);
 

@@ -9,7 +9,7 @@ use FakeImageSrc\Common;
 $config = require_once __DIR__ . '/config.php';
 $cacheFile = '';
 
-$processor = \FakeImageSrc\ImageProcessorFactory::create('vips', $config);
+$processor = \FakeImageSrc\ImageProcessorFactory::create($config['processor'], $config);
 
 # ############################################### #
 
